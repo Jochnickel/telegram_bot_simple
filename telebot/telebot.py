@@ -18,7 +18,7 @@ class Bot:
 	welcomeMessage	= "Welcome!"
 	byeMessage		= "See you!"
 	loopInterval	= 1
-	newCommand_warning = True
+	newCommand_info = "Command %s registered.\nMake sure the callback function looks like foo(self,cmd,params)!\n%s.newCommand_info = True"
 
 	def __init__(self, apiKey: str):
 		self.__api = Api(apiKey)
@@ -59,9 +59,9 @@ class Bot:
 							self.__onInlineQuery(u)
 					time.sleep(self.loopInterval)
 				except Exception as e:
-					s = ""
-					for a in traceback.format_stack(): s += a
-					logging.warning("%s %s\n"%(s,e))
+					t = traceback.format_exc()
+					print(t)
+					logging.warning(t)
 
 		threading.Thread(target = background).start()
 		# def console():
@@ -117,16 +117,16 @@ class Bot:
 		if name in self.__commands: raise RuntimeError("Command already exists")
 		if not callable(cb_func): raise RuntimeError("No function provided")
 		self.__commands[name] = { 'run' : cb_func }
-		if self.newCommand_warning:
-			print("Command %s registered.\nMake sure the callback function looks like foo(self,cmd,params)!\n%s.newCommand_warning = True"%(name,self))
+		if self.newCommand_info:
+			print(self.newCommand_info%(name,self))
 
 	def __printErrors(self,userid, clear = False):
 		try:
 			fd = open('log.txt','r')
 			self.sendMessage(userid,fd.read() or "Empty log")
+			fd.close()
 		except:
 			self.sendMessage(userid,"No log file")
-		fd.close()
 		if 'clear'==clear: os.remove('log.txt')
 
 	def __printUsers(self,userid):
@@ -201,8 +201,29 @@ class Bot:
 				self.onCommand(upd)
 
 	def __onInlineQuery(self,u):
-		if callable(self.onInlineQuery):
-			self.onInlineQuery(u)
+		if callable(self.answerInlineQuery):
+			dummy = [{'title':'','input_message_content':{'message_text':''},'type':'article'}]
+			r =  self.answerInlineQuery(update = u,answer = dummy)
+			if tuple==type(r):
+				self.__api.answerInlineQueryEZ(u['inline_query']['id'],*r)
+				return
+			elif str==type(r):
+				self.__api.answerInlineQueryEZ(u['inline_query']['id'],r,r)
+				return
+			elif dict==type(r):
+				r = [r]
+			elif list==type(r):
+				pass
+			else:
+				r = dummy
+			r[0]['title'] = r[0]['title'] or ' '
+			r[0]['input_message_content']['message_text'] = r[0]['input_message_content']['message_text'] or '<empty Message>'
+			if not 'type' in r[0]: r[0]['type'] = article
+			if not 'id' in r[0]: r[0]['id'] = id(r)
+			self.__api.answerInlineQuery(u['inline_query']['id'], dummy)
+				
+
+
 
 	def __onMessage(self,u):
 		if callable(self.onMessage):
@@ -212,7 +233,7 @@ class Bot:
 		if callable(self.onUpdate):
 			self.onUpdate(u)
 
-	def onInlineQuery(self,*f): print("Bot.onInlineQuery() placeholder",f)
+	def answerInlineQuery(self,*f): print("Bot.answerInlineQuery() placeholder",f)
 	def onMessage(self,*f): print("Bot.onMessage() placeholder",f)
 	def onCommand(self,*f): print("Bot.onCommand() placeholder",f)
 	def onUpdate(self,*f): print("Bot.onUpdate() placeholder",f)

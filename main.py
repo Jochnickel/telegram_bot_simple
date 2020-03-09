@@ -2,7 +2,7 @@ from telebot.telebot import Bot
 import time
 
 b = Bot(open('token.txt','r').read())
-b.newCommand_warning = False
+b.newCommand_info = False
 
 def helloWorld(bot,userid,params):
 	bot.sendMessage(userid,"Hello User")
@@ -11,14 +11,14 @@ def helloWorld(bot,userid,params):
 
 b.newCommand('/helloworld',helloWorld)
 
-def oIQ(b,c):
-	print("asokd")
-	print(b,c)
+def oIQ(update, answer):
+	answer[0]['title'] = "helloo"
+	# return update['inline_query']['query']
 
 b.onMessage = None
 b.onCommand = None
-# b.onUpdate = None
-# b.onInlineQuery = oIQ
+b.onUpdate = None
+b.answerInlineQuery = oIQ
 
 
 

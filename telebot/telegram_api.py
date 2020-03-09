@@ -45,6 +45,19 @@ class Api:
 			raise ApiError("Other sendMessage HTTP Error:",e)
 		except urllib.error.URLError as e: raise NetworkError(e)
 
+	def answerInlineQueryEZ(self,inline_query_id,title,text):
+		arr = [{'type':'article','message_text':text,'title':title}]
+		arr[0]['id'] = id(arr)
+		self.answerInlineQuery(inline_query_id,arr)
+
 	def answerInlineQuery(self,inline_query_id,results):
-		try: urllib.request.urlopen('%sbot%s/sendMessage?chat_id=%s&text=%s'%(url,self.__token,chat_id,msg))
-		except Exception as e: print(e)
+		try:
+			results = urllib.parse.quote(json.dumps(results, separators = (',', ':')),safe="[{:,}]")
+			url_ = '%sbot%s/answerInlineQuery?inline_query_id=%s&results=%s'%(url,self.__token,inline_query_id,results)
+			print(url_)
+			u = urllib.request.urlopen(url_)
+
+			return True
+		except Exception as e:
+			print('ERROR',e)
+			return False
