@@ -54,7 +54,6 @@ class Api:
 		try:
 			results = urllib.parse.quote(json.dumps(results, separators = (',', ':')),safe="[{:,}]")
 			url_ = '%sbot%s/answerInlineQuery?inline_query_id=%s&results=%s'%(url,self.__token,inline_query_id,results)
-			print(url_)
 			u = urllib.request.urlopen(url_)
 
 			return True
