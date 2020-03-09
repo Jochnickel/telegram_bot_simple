@@ -1,6 +1,6 @@
-import error
+from . import error
 import time
-from database import Database
+from .database import Database
 
 class cannotRemoveAdminError(RuntimeError):
 	def __init__(self, arg): self.args = arg

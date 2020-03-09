@@ -1,5 +1,4 @@
-
-from telebot import Bot
+from telebot.telebot import Bot
 import time
 
 b = Bot(open('token.txt','r').read())

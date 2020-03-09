@@ -1,7 +1,7 @@
 import os
 import json
 from threading import Lock, Timer
-from data import Data
+from .data import Data
 import zlib
 
 # issues: dbs is exposed

@@ -1,4 +1,4 @@
-from database import Database
+from .database import Database
 
 class Tickets:
 	# __db = Database('')

@@ -5,10 +5,10 @@ import random
 import sys
 import os
 import traceback
-from users import Users
-from tickets import Tickets
-from telegram_api import Api, UnsubscribedError
 import logging
+from .users import Users
+from .tickets import Tickets
+from .telegram_api import Api, UnsubscribedError
 
 logging.basicConfig(filename='log.txt',level=logging.DEBUG)
 
@@ -75,13 +75,14 @@ class Bot:
 		while True:
 			for u in self.__api.newUpdates():
 				msg = 'message' in u and u['message']
-				if msg and ('text' in msg) and ('from' in msg) and secret==msg['text']:
-					i = msg['from']['id']
-					self.sendMessage(i,"Success! Print your commands with /cmd")
-					print("Success!")
-					return i
-				elif ('from' in msg):
-					input("Bad message from %s. Press Enter to continue"%msg['from']['id'])
+				if msg and ('from' in msg):
+					if ('text' in msg) and secret==msg['text']:
+						i = msg['from']['id']
+						self.sendMessage(i,"Success! Print your commands with /cmd")
+						print("Success!")
+						return i
+					else:
+						input("Bad message from %s. Press Enter to continue"%msg['from']['id'])
 			time.sleep(1)
 
 	__commands = {
